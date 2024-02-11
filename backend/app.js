@@ -24,6 +24,10 @@ app.use((req, res, next) => {
   });
 
 //On relie notre app à notre fichier de routage
-app.use();
+//app.use();
+
+app.use((req, res) => {
+  res.json({ message: 'Votre requête a bien été reçue !' }); 
+});
 
 module.exports = app;
