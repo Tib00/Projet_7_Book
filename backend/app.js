@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const livresRoutes = require('./routes/books');
+const userRoutes = require('./routes/users');
 
 //on se sert de mongoose pour extraire les données de la database
 mongoose.connect('mongodb+srv://tim_book:g1raf159@cluster1.lmlhago.mongodb.net/',)
@@ -23,10 +24,6 @@ app.use((req, res, next) => {
     next();
   });
 
-//On relie notre app à notre fichier de routage
-//app.use();
-
-
 //test de postman sur une base fictive de livres
 
 // Route pour récupérer une liste fictive de livres
@@ -40,12 +37,15 @@ app.use((req, res, next) => {
 //   res.json({ livres });
 // });
 
-//Ici le chemin vers mes contrôleurs
-app.use('/', livresRoutes);
+//Ici le chemin vers mes contrôleurs pour aller chercher mes livres
+app.use('/books', livresRoutes);
 
 //Ici une route générique avec un message générique pour le cas où il y ait des problèmes de requêtes
 app.use((req, res) => {
   res.json({ message: 'Votre requête a bien été reçue !' }); 
 });
+
+//Ici le chemin vers mes utilisateurs
+app.use('/auth', userRoutes);
 
 module.exports = app;
