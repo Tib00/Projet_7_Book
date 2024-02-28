@@ -16,7 +16,7 @@ const normalizePort = val => {
 };
 
 //troisième étape: installation d'un environnement. On lui fait écouter un environnement ou par défaut le port 3000
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '4000');
 //on donne le port qu'on a créé à notre app.js
 app.set('port', port);
 

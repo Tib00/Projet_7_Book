@@ -16,4 +16,4 @@ userSchema.plugin(uniqueValidator);
 
 //Ensuite, il nous faut exporter ce que l'on a créé grâce à une autre méthode de mongoose: model
 // Il nous faut 2 arguments en paramètres: le nom sous lequel nous allons l'utiliser et le schema que l'on souhaite utiliser
-module.export = mongoose.model('User', userSchema)
+module.exports = mongoose.model('User', userSchema)

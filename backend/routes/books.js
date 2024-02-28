@@ -3,12 +3,15 @@ const express = require('express');
 const router = express.Router();
 
 //Pour utiliser le middleware d'authentification
-const auth = require('../middleware/auth');
+//const auth = require('../middleware/auth');
+//Pour utiliser le middleware multer qui permet de charger des images
+const multer = require('../middleware/multer-config');
 
+//Appelle la logique métier de nos routes de contrôle
 const ctrlBooks = require('../controllers/books')
 
 // Ici notre première route permettant d'aller chercher les livres présents sur la plateforme (Book1)
-router.get('/', auth, ctrlBooks.findAllBooks);
+router.get('/',  ctrlBooks.findAllBooks);//(auth, multer)
 
 //Ici une route pour aller cercher un livre spécifique en fonction de son id (Book2)
 router.get('/:id', ctrlBooks.findOneBook);
@@ -17,10 +20,10 @@ router.get('/:id', ctrlBooks.findOneBook);
 router.get('/bestrating', ctrlBooks.sortByRates);
 
 //Ajout d'un nouveau livre (Book4)
-router.post('/', ctrlBooks.postNewBook);
+router.post('/', multer, ctrlBooks.postNewBook);//(multer)
 
 //Modification d'un livre (Book5)
-router.put('/:id', ctrlBooks.modifBooks);
+router.put('/:id', ctrlBooks.modifBooks);//(multer)
 
 //suppression d'un livre (Book6)
 router.delete('/:id', ctrlBooks.eraseBook);

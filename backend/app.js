@@ -1,6 +1,7 @@
 //importation des modules nécéssaires
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const livresRoutes = require('./routes/books');
 const userRoutes = require('./routes/users');
@@ -13,39 +14,47 @@ mongoose.connect('mongodb+srv://tim_book:g1raf159@cluster1.lmlhago.mongodb.net/'
 //installation de express dans l'application
 const app = express();
 
-//l'app va parser(traduire) le corps de la réponse en json ( = bodyparser)
-app.use(express.json());
+//on accede au path
+//const path = require('path');
 
 //permissions CORS
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    next();
-  });
+  console.log('Middleware CORS - Requête reçue:', req.method, req.url);
 
-//test de postman sur une base fictive de livres
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 
-// Route pour récupérer une liste fictive de livres
-// app.get('/', (req, res) => {
-//   const livres = [
-//     { titre: 'Livre 1', auteur: 'Auteur 1' },
-//     { titre: 'Livre 2', auteur: 'Auteur 2' },
-//     { titre: 'Livre 3', auteur: 'Auteur 3' }
-//   ];
-
-//   res.json({ livres });
-// });
-
-//Ici le chemin vers mes contrôleurs pour aller chercher mes livres
-app.use('/books', livresRoutes);
-
-//Ici une route générique avec un message générique pour le cas où il y ait des problèmes de requêtes
-app.use((req, res) => {
-  res.json({ message: 'Votre requête a bien été reçue !' }); 
+  // Vérifier si la requête est une pré-vérification (preflight)
+  if (req.method === 'OPTIONS') {
+      console.log('Middleware CORS - Requête OPTIONS (preflight)');
+      res.status(200)
+          .setHeader('Content-Length', '0')
+          .end();
+  } else {
+      // Sinon, passer à la suite
+      next();
+  }
 });
 
+//l'app va parser(traduire) le corps de la réponse en json ( = bodyparser)
+app.use(express.json());
+
+
+//Ici le chemin vers mes contrôleurs pour aller chercher mes livres
+app.use('/api/books', livresRoutes);
+
+//Ici une route générique avec un message générique pour le cas où il y ait des problèmes de requêtes
+// app.use((req, res) => {
+//   console.log('Route générique - Requête reçue');
+//   res.json({ message: 'Votre requête a bien été reçue !' }); 
+// });
+
 //Ici le chemin vers mes utilisateurs
-app.use('/auth', userRoutes);
+app.use('/api/auth', userRoutes);
+
+
+//La route vers les images
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;
