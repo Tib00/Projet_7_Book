@@ -14,7 +14,7 @@ const ctrlBooks = require('../controllers/books')
 router.get('/',  ctrlBooks.findAllBooks);//(auth, multer)
 
 //Ici une route pour aller cercher un livre spécifique en fonction de son id (Book2)
-router.get('/:id', ctrlBooks.findOneBook);
+router.get('/:id', ctrlBooks.getOneBook);
 
 //Tri des livres en fonction de leur notes (Book3)
 router.get('/bestrating', ctrlBooks.sortByRates);
@@ -23,9 +23,9 @@ router.get('/bestrating', ctrlBooks.sortByRates);
 router.post('/', multer, ctrlBooks.postNewBook);//(multer)
 
 //Modification d'un livre (Book5)
-router.put('/:id', ctrlBooks.modifBooks);//(multer)
+router.put('/:id', multer, ctrlBooks.modifyBook);//(multer)
 
-//suppression d'un livre (Book6)
+// Suppression d'un livre (Book6)
 router.delete('/:id', ctrlBooks.eraseBook);
 
 // Noter un livre (Book 7)

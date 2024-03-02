@@ -2,7 +2,7 @@ const Books = require('../models/books')
 
 //La constante fs appelle filesysteme, une fonctionalité qui nous permet d'avoir accès 
 //aux fonctions qui nous permettent de modifier le système de fichiers, y compris aux fonctions permettant de supprimer les fichiers.
-//const fs = require('fs');
+const fs = require('fs');
 
 //Ici la logique de la route Book1
 exports.findAllBooks = (req, res, next) => {
@@ -19,28 +19,13 @@ exports.findAllBooks = (req, res, next) => {
         });
 }
 //Ici la logique de la route Book2
-exports.findOneBook = (req, res, next) => {
-    const livreId = req.params.id;
-
-    // Books.findById() renvoie une promesse
-    Books.findById(livreId)
-        .then(livre => {
-            if (!livre) {
-                return res.status(404).json({ message: 'Livre non trouvé.' });
-            }
-
-            // Envoyer les détails du livre comme réponse JSON
-            res.status(200).json({
-                livre: livre,
-                message: 'Voici votre livre !'
-            });
-        })
-        .catch(error => {
-            // En cas d'erreur, renvoyer une réponse d'erreur
-            console.error(error);
-            res.status(500).json({ error: 'Erreur lors de la récupération du livre.' });
-        });
-}
+exports.getOneBook = (req, res, next) => {
+    Books.findOne({
+        _id: req.params.id
+    })
+    .then((book) => res.status(200).json(book))
+    .catch((error) => res.status(404).json({ error }));
+};
 
 //Ici la logique de la route Book3
 exports.sortByRates = (req, res, next) => {
@@ -96,52 +81,60 @@ exports.postNewBook = (req, res, next) => {
         });
 }
 
-//Ici la logique de la route Book5
-exports.modifBooks = (req, res, next) => {
-    const livreId = req.params.id;
+//Ici la logique de la route Book5 de modification de livre
+exports.modifyBook = (req, res, next) => {
+    const changeBook = req.file ? {
+        ...JSON.parse(req.body.book),
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    } : { ...req.body };
+    delete changeBook._userId;
 
-    // Utiliser Mongoose pour mettre à jour le livre correspondant
-    Book.findByIdAndUpdate(livreId, req.body)
-        .then(() => {
-            res.status(200).json({
-                message: 'Livre modifié !'
-            });
+    // Utiliser Mongoose pour trouver le livre par son ID
+    Books.findOne({ _id: req.params.id })
+        .then(book => {
+            if (!book) {
+                return res.status(404).json({ message: 'Livre non trouvé.' });
+            }
+
+            // Mettre à jour le livre avec les modifications
+            Books.updateOne({ _id: req.params.id }, { ...changeBook, _id: req.params.id })
+                .then(() => {
+                    res.status(200).json({ message: 'Livre modifié avec succès!' });
+                })
+                .catch(updateError => {
+                    console.error("Erreur lors de la modification du livre:", updateError);
+                    res.status(500).json({ error: 'Erreur lors de la modification du livre.' });
+                });
         })
         .catch(error => {
-            console.error(error);
-            res.status(500).json({ error: 'Erreur lors de la modification du livre.' });
+            console.error("Erreur lors de la recherche du livre:", error);
+            res.status(400).json({ error });
         });
-}
-
-// /!\route 5 avec multer
-// exports.modifyThing = (req, res, next) => {
-//     const thingObject = req.file ? {
-//         ...JSON.parse(req.body.thing),
-//         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-//     } : { ...req.body };
-  
-//     delete thingObject._userId;
-//     Thing.findOne({_id: req.params.id})
-//         .then((thing) => {
-//             if (thing.userId != req.auth.userId) {
-//                 res.status(401).json({ message : 'Not authorized'});
-//             } else {
-//                 Thing.updateOne({ _id: req.params.id}, { ...thingObject, _id: req.params.id})
-//                 .then(() => res.status(200).json({message : 'Objet modifié!'}))
-//                 .catch(error => res.status(401).json({ error }));
-//             }
-//         })
-//         .catch((error) => {
-//             res.status(400).json({ error });
-//         });
-//  };
+};
 
 //Ici la logique de la route Book6
+// exports.eraseBook = (req, res, next) => {
+//     const livreId = req.params.id;
+
+//     // Utiliser Mongoose pour supprimer le livre correspondant
+//     Book.findByIdAndRemove(livreId)
+//         .then(() => {
+//             res.status(200).json({
+//                 message: 'Livre supprimé !'
+//             });
+//         })
+//         .catch(error => {
+//             console.error(error);
+//             res.status(500).json({ error: 'Erreur lors de la suppression du livre.' });
+//         });
+// }
+
+// Route 6 avec multer et fs
 exports.eraseBook = (req, res, next) => {
     const livreId = req.params.id;
 
     // Utiliser Mongoose pour supprimer le livre correspondant
-    Book.findByIdAndRemove(livreId)
+    Books.findOneAndDelete({ _id: livreId })
         .then(() => {
             res.status(200).json({
                 message: 'Livre supprimé !'
@@ -151,27 +144,7 @@ exports.eraseBook = (req, res, next) => {
             console.error(error);
             res.status(500).json({ error: 'Erreur lors de la suppression du livre.' });
         });
-}
-
-// Route 6 avec multer et fs
-// exports.deleteThing = (req, res, next) => {
-//     Thing.findOne({ _id: req.params.id})
-//         .then(thing => {
-//             if (thing.userId != req.auth.userId) {
-//                 res.status(401).json({message: 'Not authorized'});
-//             } else {
-//                 const filename = thing.imageUrl.split('/images/')[1];
-//                 fs.unlink(`images/${filename}`, () => {
-//                     Thing.deleteOne({_id: req.params.id})
-//                         .then(() => { res.status(200).json({message: 'Objet supprimé !'})})
-//                         .catch(error => res.status(401).json({ error }));
-//                 });
-//             }
-//         })
-//         .catch( error => {
-//             res.status(500).json({ error });
-//         });
-//  };
+};
 
 //Ici la logique de la route Book7
 exports.rateBook = (req, res, next) => {
