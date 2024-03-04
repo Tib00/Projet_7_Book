@@ -4,13 +4,14 @@ const mongoose = require('mongoose'); // Mongoose bibliothèque pour Node.js. El
 const path = require('path');
 require('dotenv').config(); //bibliothèque JavaScript utilisée pour charger les variables d'environnement à partir d'un fichier .env dans les applications Node.js.(sécurité des données)
 require('./secret-token');// Appel du fichier de chargement des variables d'environnement
-const databaseURL = process.env.DATABASE_URL;
+
 
 const livresRoutes = require('./routes/books');
 const userRoutes = require('./routes/users');
+const rateLimit = require('express-rate-limit');// Pour lutter contre les attaques
 
 //on se sert de mongoose pour extraire les données de la database
-mongoose.connect(databaseURL)
+mongoose.connect(process.env.DATABASE_URL)
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
@@ -47,11 +48,6 @@ app.use(express.json());
 //Ici le chemin vers mes contrôleurs pour aller chercher mes livres
 app.use('/api/books', livresRoutes);
 
-//Ici une route générique avec un message générique pour le cas où il y ait des problèmes de requêtes
-// app.use((req, res) => {
-//   console.log('Route générique - Requête reçue');
-//   res.json({ message: 'Votre requête a bien été reçue !' }); 
-// });
 
 //Ici le chemin vers mes utilisateurs
 app.use('/api/auth', userRoutes);
@@ -59,5 +55,15 @@ app.use('/api/auth', userRoutes);
 
 //La route vers les images
 app.use('/images', express.static(path.join(__dirname, 'images')));
+
+//sécurité contre les attaques (brutforce et ddos)
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, 
+	standardHeaders: true, 
+	legacyHeaders: false, 
+})
+
+app.use(limiter)
 
 module.exports = app;
