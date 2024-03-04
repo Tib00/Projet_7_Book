@@ -1,13 +1,16 @@
 //importation des modules nécéssaires
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require('express'); //Express est un framework minimaliste permettant la création rapide d'API
+const mongoose = require('mongoose'); // Mongoose bibliothèque pour Node.js. Elle simplifie l'interaction avec une base de données MongoDB à l'aide de modèles et d'objets JavaScript
 const path = require('path');
+require('dotenv').config(); //bibliothèque JavaScript utilisée pour charger les variables d'environnement à partir d'un fichier .env dans les applications Node.js.(sécurité des données)
+require('./secret-token');// Appel du fichier de chargement des variables d'environnement
+const databaseURL = process.env.DATABASE_URL;
 
 const livresRoutes = require('./routes/books');
 const userRoutes = require('./routes/users');
 
 //on se sert de mongoose pour extraire les données de la database
-mongoose.connect('mongodb+srv://tim_book:g1raf159@cluster1.lmlhago.mongodb.net/',)
+mongoose.connect(databaseURL)
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 

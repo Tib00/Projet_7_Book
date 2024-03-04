@@ -27,7 +27,7 @@ exports.getOneBook = (req, res, next) => {
     .catch((error) => res.status(404).json({ error }));
 };
 
-//Ici la logique de la route Book3
+//Ici la logique de la route Book3 pour trier les livres en fonction de leurs notation
 exports.sortByRates = (req, res, next) => {
     // Supposons que Books.find() renvoie une promesse
     Books.find()
@@ -48,7 +48,7 @@ exports.sortByRates = (req, res, next) => {
         });
 }
 
-//Ici la logique de la route Book4
+//Ici la logique de la route Book4 de création/ ajout de livre
 exports.postNewBook = (req, res, next) => {
     // Récupérer les données du livre depuis le corps de la requête
     const bookData = JSON.parse(req.body.book);
@@ -112,24 +112,9 @@ exports.modifyBook = (req, res, next) => {
         });
 };
 
-//Ici la logique de la route Book6
-// exports.eraseBook = (req, res, next) => {
-//     const livreId = req.params.id;
 
-//     // Utiliser Mongoose pour supprimer le livre correspondant
-//     Book.findByIdAndRemove(livreId)
-//         .then(() => {
-//             res.status(200).json({
-//                 message: 'Livre supprimé !'
-//             });
-//         })
-//         .catch(error => {
-//             console.error(error);
-//             res.status(500).json({ error: 'Erreur lors de la suppression du livre.' });
-//         });
-// }
 
-// Route 6 avec multer et fs
+// Route Book6 avec multer et fs pour supprimer un livre
 exports.eraseBook = (req, res, next) => {
     const livreId = req.params.id;
 
@@ -146,7 +131,7 @@ exports.eraseBook = (req, res, next) => {
         });
 };
 
-//Ici la logique de la route Book7
+//Ici la logique de la route Book7 pour noter un livre
 exports.rateBook = (req, res, next) => {
     const livreId = req.params.id;
     const userId = req.body.userId; // Supposons que l'ID de l'utilisateur est dans le corps de la requête
