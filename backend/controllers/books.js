@@ -1,4 +1,5 @@
 const Books = require('../models/books')
+const mongoose = require('mongoose');
 
 //La constante fs appelle filesysteme, une fonctionalité qui nous permet d'avoir accès 
 //aux fonctions qui nous permettent de modifier le système de fichiers, y compris aux fonctions permettant de supprimer les fichiers.
@@ -55,16 +56,10 @@ exports.postNewBook = (req, res, next) => {
 
     // Créer un nouveau livre à partir des données reçues
     const nouveauLivre = new Books({
-        userId: bookData.userId,
-        title: bookData.title,
-        author: bookData.author,
+        ...bookData,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-        year: bookData.year,
-        genre: bookData.genre,
-        ratings: [],
-        averageRating: 0
     });
-
+    
     // Sauvegarder le nouveau livre dans la base de données
     nouveauLivre.save()
         .then(livreSauvegarde => {
@@ -135,10 +130,31 @@ exports.eraseBook = (req, res, next) => {
 exports.rateBook = (req, res, next) => {
     const livreId = req.params.id;
     const userId = req.body.userId; // Supposons que l'ID de l'utilisateur est dans le corps de la requête
-    const grade = req.body.grade;   // Supposons que la note est dans le corps de la requête
+    const grade = req.body.rating;   // Supposons que la note est dans le corps de la requête
+
+        // Validation de l'ObjectId
+        if (!mongoose.Types.ObjectId.isValid(livreId)) {
+            return res.status(400).json({ error: 'ID de livre invalide.' });
+        }
+
+    // Vérifier si les données nécessaires sont présentes dans la requête
+    if (!userId) {
+        console.log('ID de l\'utilisateur manquant dans la requête.');
+        return res.status(400).json({ error: 'L\'ID de l\'utilisateur est manquant dans la requête.' });
+    }
+
+if (!grade) {
+    console.log('Note attribuée manquante dans la requête.');
+    return res.status(400).json({ error: 'La note attribuée est manquante dans la requête.' });
+}
+    
+        // Log des données pour déboguer
+        console.log('ID du livre :', livreId);
+        console.log('ID de l\'utilisateur :', userId);
+        console.log('Note attribuée :', grade);
 
     // Utiliser Mongoose pour trouver le livre par son ID
-    Book.findById(livreId)
+    Books.findById(livreId)
         .then(livre => {
             if (!livre) {
                 return res.status(404).json({ error: 'Livre non trouvé.' });

@@ -20,6 +20,16 @@ const bookSchema = mongoose.Schema({
     averageRating: {type: Number, required: true}, // note globale
 });
 
+//On utilise la méthode mongoose de calcul des notes
+bookSchema.methods.calculateAverageRating = function () {
+    const numberOfRatings = this.ratings.length;
+    if (numberOfRatings === 0) {
+      this.averageRating = 0;
+    } else {
+      const totalNumbers = this.ratings.reduce((accumulator, rating) => accumulator + rating.grade, 0);
+      this.averageRating = Math.round(totalNumbers / numberOfRatings);
+    }
+  };
 
 //Ensuite, il nous faut exporter ce que l'on a créé grâce à une autre méthode de mongoose: model
 // Il nous faut 2 arguments en paramètres: le nom sous lequel nous allons l'utiliser et le schema que l'on souhaite utiliser
