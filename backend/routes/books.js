@@ -10,25 +10,13 @@ const multer = require('../middleware/multer-config');
 //Appelle la logique métier de nos routes de contrôle
 const ctrlBooks = require('../controllers/books')
 
-// Ici notre première route permettant d'aller chercher les livres présents sur la plateforme (Book1)
-router.get('/',  ctrlBooks.findAllBooks);
-
-//Ici une route pour aller cercher un livre spécifique en fonction de son id (Book2)
-router.get('/:id', ctrlBooks.getOneBook);
-
-//Tri des livres en fonction de leur notes (Book3)
-router.get('/bestrating', ctrlBooks.sortByRates);
-
-//Ajout d'un nouveau livre (Book4)
-router.post('/', auth, multer, ctrlBooks.postNewBook);
-
-//Modification d'un livre (Book5)
-router.put('/:id', multer, ctrlBooks.modifyBook);
-
-// Suppression d'un livre (Book6)
-router.delete('/:id', ctrlBooks.eraseBook);
-
-// Noter un livre (Book 7)
-router.post('/:id/rating', ctrlBooks.rateBook);
+//Ici les différentes routes
+router.get('/', ctrlBooks.getAllBook); //Pour obtenir tous les livres
+router.get('/bestrating', ctrlBooks.getBestRatedBooks);  // pour obtenir les mieux notés
+router.get('/:id', ctrlBooks.getOneBook); // pour aller chercher 1 livre
+router.put('/:id', auth, multer, ctrlBooks.modifyBook); // Pour modifier un livre
+router.post('/:id/rating', auth, ctrlBooks.rateBook);  // Pour noter un livre
+router.post('/', auth, multer, ctrlBooks.createBook);  // Pour créer un livre
+router.delete('/:id', auth, ctrlBooks.deleteBook);  //Pour supprimer un livre
 
 module.exports = router;
