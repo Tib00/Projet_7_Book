@@ -5,11 +5,11 @@ const fs = require('fs');
 // 2-- POUR CREER UN BOOK
 exports.createBook = (req, res, next) => {
     const newBook = JSON.parse(req.body.book);     
-    delete newBook._id;    
-    delete newBook._userId;
+    delete newBook._id;   // MongoDB génère un ID à chaque nouvelle entrée. On supprime celle potentielle de l'utilisateur 
+    delete newBook._userId; // Notre utilisateur est identifié grâce à un jeton JWT. On supprime son user de la requête pour éviter les fuites de données personelles.
     const book = new Book({     
         ...newBook,
-        userId: req.auth.userId,
+        userId: req.auth.userId,  // associe un livre à un id d'utilisateur afin de déterminer qui à enregistré le livre.
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
     book.save()
@@ -32,7 +32,7 @@ exports.modifyBook = (req, res, next) => {
         ...JSON.parse(req.body.book),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : { ...req.body };
-    delete changeBook._userId;
+    delete changeBook._userId; // supprime l'Id de l'utilisateur avant changement pour protéger les données sensibles (RGPD)
     Book.findOne({_id: req.params.id})   
         // verif si le userID du book et le meme que celui de la requete
         .then((book) => {
