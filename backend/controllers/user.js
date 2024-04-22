@@ -1,3 +1,4 @@
+// Pour des raisons de clartés et de lisibilité, on sépare la route des controlers 
 //Modèle de données de Mongoose pour des utilisateurs
 const User = require('../models/user')
 

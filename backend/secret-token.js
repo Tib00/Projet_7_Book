@@ -1,5 +1,5 @@
-const crypto = require('crypto');
-const dotenv = require('dotenv');
+const crypto = require('crypto'); // Importe le module crypto qui  fournit des fonctionnalités de cryptographie
+const dotenv = require('dotenv'); //bibliothèque JavaScript utilisée pour charger les variables d'environnement à partir d'un fichier .env dans les applications Node.js.(sécurité des données)
 
 const generateRandomToken = () => {
     const buffer = crypto.randomBytes(64);

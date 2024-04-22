@@ -1,8 +1,8 @@
-// 1--IMPORTATION DES MODULES NÉCESSAIRES
+// Importation des modules nécéssaires à la création des chemins
 const Book = require('../models/books');
-const fs = require('fs');
+const fs = require('fs'); //filesystem permet d'interagir avec le système de l'utilisateur
 
-// 2-- POUR CREER UN BOOK
+// Créer un book
 exports.createBook = (req, res, next) => {
     const newBook = JSON.parse(req.body.book);     
     delete newBook._id;   // MongoDB génère un ID à chaque nouvelle entrée. On supprime celle potentielle de l'utilisateur 
@@ -17,7 +17,7 @@ exports.createBook = (req, res, next) => {
         .catch(error => res.status(400).json({ error }));
 };
 
-// 3-- POUR AFFICHER UN SEUL BOOK
+// Afficher un seul livre
 exports.getOneBook = (req, res, next) => {
     Book.findOne({
         _id: req.params.id
@@ -26,7 +26,7 @@ exports.getOneBook = (req, res, next) => {
     .catch((error) => res.status(404).json({ error }));
 };
 
-// 4-- POUR MODIFIER UN BOOK 
+// Modification d'un livre
 exports.modifyBook = (req, res, next) => {
     const changeBook = req.file ? {
         ...JSON.parse(req.body.book),
@@ -34,10 +34,10 @@ exports.modifyBook = (req, res, next) => {
     } : { ...req.body };
     delete changeBook._userId; // supprime l'Id de l'utilisateur avant changement pour protéger les données sensibles (RGPD)
     Book.findOne({_id: req.params.id})   
-        // verif si le userID du book et le meme que celui de la requete
+        // verif si le ID du book et le meme que celui de la requete
         .then((book) => {
             if (book.userId != req.auth.userId) {
-                res.status(401).json({ message : 'Non autorisé'});
+                res.status(401).json({ message : 'Non autorisé'}); // On vérifie que l'utilisateur a bien le droit de supprimer le livre
             } else {
                 Book.updateOne({ _id: req.params.id}, { ...changeBook, _id: req.params.id})
                     .then(() => res.status(200).json({ message : 'Livre modifié avec succès!'}))
@@ -49,16 +49,16 @@ exports.modifyBook = (req, res, next) => {
         });
 };
 
-// 5-- POUR SUPPRIMER UN LIVRE
+// Suppression d'un livre
 exports.deleteBook = (req, res, next) => {
     Book.findOne({ _id: req.params.id})  //recup du book avc son id
         .then(book => {
             if (book.userId != req.auth.userId) {
                 res.status(401).json({message: 'Non autorisé'});
             } else {
-                const filename = book.imageUrl.split('/images/')[1];  
+                const filename = book.imageUrl.split('/images/')[1]; // On supprime d'abord l'image pour garantir l'intégrité des deonnées, éviter d'avoir des images sans données associées 
                 fs.unlink(`images/${filename}`, () => {
-                    Book.deleteOne({_id: req.params.id})
+                    Book.deleteOne({_id: req.params.id})  // On supprime les données
                         .then(() => { res.status(200).json({message: 'Livre supprimé avec succès !'})})
                         .catch(error => res.status(401).json({ error }));
                 });
@@ -69,14 +69,14 @@ exports.deleteBook = (req, res, next) => {
         });
 };
 
-// 6-- POUR AFFICHER TOUS LES BOOK 
+// Afficher tous les livres
 exports.getAllBook = (req, res, next) => {
     Book.find()
         .then((book) => res.status(200).json(book))
         .catch((error) => res.status(400).json({ error }));
 };
 
-// 7-- POUR RECUPERER LA NOTE D'UN LIVRE
+// Noter un livre
 exports.rateBook = async (req, res, next) => {
     const bookId =  req.params.id
     try {
@@ -101,7 +101,7 @@ exports.rateBook = async (req, res, next) => {
     }
 };
 
-// 8-- POUR RECUPERER LA MOYENNE DES LIVRES
+// Récupération de la note moyenne des livres
 exports.getAverageRating = async (req, res, next) => {
     const bookId = req.params.id;
     try {
@@ -112,7 +112,7 @@ exports.getAverageRating = async (req, res, next) => {
     }
 };
 
-// 9--RÉCUPÉRATION DES TROIS MEILLEURS LIVRES NOTÉS
+// Récupérer les 3 meilleurs livres notés
 exports.getBestRatedBooks = (req, res, next) => {
     Book.find()
         .sort({ averageRating: -1 })

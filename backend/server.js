@@ -1,6 +1,6 @@
 //première phase: import des modules nécéssaires
-const http = require('http');
-const app = require('./app');
+const http = require('http'); // Cette ligne importe le module http de Node.js, qui permet de créer un serveur HTTP
+const app = require('./app'); // Importe Express. L'application Express contient toute la logique de routage, de middleware et de gestion des requêtes de l'API
 
 //deuxième étape: on normalise un port
 const normalizePort = val => {
@@ -15,13 +15,13 @@ const normalizePort = val => {
   return false;
 };
 
-//troisième étape: installation d'un environnement. On lui fait écouter un environnement ou par défaut le port 3000
+//troisième étape: installation d'un environnement. On lui fait écouter un environnement ou par défaut le port 4000
 const port = normalizePort(process.env.PORT || '4000');
 //on donne le port qu'on a créé à notre app.js
 app.set('port', port);
 
 
-//gestionnaire d'erreur
+//gestionnaire d'erreur en cas d'erreur lors du démarage du serveur
 const errorHandler = error => {
   if (error.syscall !== 'listen') {
     throw error;
