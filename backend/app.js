@@ -5,10 +5,9 @@ const path = require('path'); //Importe le module 'path' qui permet d'interagir 
 require('dotenv').config(); //bibliothèque JavaScript utilisée pour charger les variables d'environnement à partir d'un fichier .env dans les applications Node.js.(sécurité des données)
 require('./secret-token');// Appel du fichier de chargement des variables d'environnement
 
-
 const livresRoutes = require('./routes/books');
 const userRoutes = require('./routes/users');
-const rateLimit = require('express-rate-limit'); // Pour lutter contre les attaques
+const rateLimit = require('express-rate-limit'); //Composant Pour lutter contre les attaques
 
 //on se sert de mongoose pour extraire les données de la database
 mongoose.connect(process.env.DATABASE_URL)
@@ -41,6 +40,16 @@ app.use((req, res, next) => {
 //l'app va parser(traduire) le corps de la réponse en json ( = bodyparser)
 app.use(express.json());
 
+//sécurité contre les attaques (brutforce et ddos)
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, 
+	standardHeaders: true, 
+	legacyHeaders: false, 
+})
+// max: 100 requêtes toutes les 15 minutes
+
+app.use(limiter)
 
 //Ici le chemin vers mes contrôleurs pour aller chercher mes livres
 app.use('/api/books', livresRoutes);
@@ -53,15 +62,6 @@ app.use('/api/auth', userRoutes);
 //La route vers les images
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-//sécurité contre les attaques (brutforce et ddos)
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, 
-	standardHeaders: true, 
-	legacyHeaders: false, 
-})
-// max: 100 messages toutes les 15 minutes
 
-app.use(limiter)
 
 module.exports = app;

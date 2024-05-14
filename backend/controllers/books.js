@@ -37,7 +37,7 @@ exports.modifyBook = (req, res, next) => {
         // verif si le ID du book et le meme que celui de la requete
         .then((book) => {
             if (book.userId != req.auth.userId) {
-                res.status(401).json({ message : 'Non autorisé'}); // On vérifie que l'utilisateur a bien le droit de supprimer le livre
+                res.status(401).json({ message : 'Non autorisé'}); // On vérifie que l'utilisateur a bien le droit de modifier le livre
             } else {
                 Book.updateOne({ _id: req.params.id}, { ...changeBook, _id: req.params.id})
                     .then(() => res.status(200).json({ message : 'Livre modifié avec succès!'}))
@@ -56,7 +56,7 @@ exports.deleteBook = (req, res, next) => {
             if (book.userId != req.auth.userId) {
                 res.status(401).json({message: 'Non autorisé'});
             } else {
-                const filename = book.imageUrl.split('/images/')[1]; // On supprime d'abord l'image pour garantir l'intégrité des deonnées, éviter d'avoir des images sans données associées 
+                const filename = book.imageUrl.split('/images/')[1]; // On supprime d'abord l'image pour garantir l'intégrité des deonnées, éviter d'avoir des images sans données associées sur le serveur pas la BDD
                 fs.unlink(`images/${filename}`, () => {
                     Book.deleteOne({_id: req.params.id})  // On supprime les données
                         .then(() => { res.status(200).json({message: 'Livre supprimé avec succès !'})})
