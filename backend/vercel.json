@@ -1,0 +1,3 @@
+{ "version": 2, "rewrites": [    { "source": "/books/(.*)", "destination": "/api/books/$1" },
+{ "source": "/users/(.*)", "destination": "/api/users/$1" },
+{ "source": "/(.*)", "destination": "/api/$1" }] }
